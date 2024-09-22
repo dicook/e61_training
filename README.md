@@ -1,7 +1,5 @@
 # e61 Training course: Data visualisation for exploration and communication
 
-<img src="" align="right" width="150" />
-
 Website: [https://github.com/dicook/e61_training/](https://github.com/dicook/e61_training/)
 
 This is a training course on data visualisation skills for e61. 
