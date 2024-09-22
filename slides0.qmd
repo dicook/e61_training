@@ -1,0 +1,433 @@
+---
+title: "Training course: Plotting Data for Communication and Exploration"
+title-slide-attributes:
+  data-background-color: "#8ACE00"
+  data-background-opacity: "0.5"
+author: "Dianne Cook <br> Monash University <br> Produced for e61, September 23, 2024"
+format:
+  revealjs: 
+    multiplex: false
+    theme: 
+      - default
+      - custom.scss
+    slide-number: c/t
+    chalkboard: false
+    width: 1600
+    height: 900
+    margin: 0.05
+    slide-tone: false
+    embed-resources: true
+code-line-numbers: false
+message: false
+highlight-style: pygments
+footer: "[https://github.com/dicook/e61_training](https://github.com/dicook/e61_training)"
+---
+
+```{r, include = FALSE}
+source("setup.R")
+```
+
+## About me
+
+:::: {.columns}
+::: {.column}
+
+::: { style="font-size: 180%; font-family: courier;"}
+
+👋🏼 [Hi!]{.darkpink2} 
+
+:::
+
+Thanks for having me come and [teach about data visualisation]{.darkpink2} today.
+
+- Professor of Statistics at Monash University, in the Monash Business School. 
+- PhD in Statistics from Rutgers University in New Jersey. 
+- My undergraduate degree was in Mathematics and Statistics from University of New England, Armidale. 
+- I moved to Monash University in 2015, after spending more than 20 years in the USA. 
+- More than 100 publications on topics related to data visualisation. 
+
+:::
+::: {.column width=5%}
+:::
+::: {.column width=45%}
+
+::: {.fragment}
+Please [introduce yourself to me]{.darkpink2}, some time today. Let me know what your background is, and what you primarily work on.
+
+<br><br>
+
+::: {.fragment style="font-size: 120%"}
+
+Please feel free to stop me 🛑 and ask questions 🙋🏽 , or add comments, any time today.
+:::
+
+:::
+
+:::
+::::
+
+## Outline
+
+1. We'll start with some clarification of the [difference between data visualisation for communication and exploration]{.darkturquoise2}. (30 mins)
+2. Then [spend about 2/3 of the time on content for communication]{.darkorange2}, which includes data management, plot specification, design principles and cognitive perception, assessing the effectiveness of a plot, including uncertainty. (4 hours)
+3. The last [1/3 will be primarily on exploration]{.darkorange2}, including exploring missing values,  interactive graphics, checking if patterns are real or spurious. (2 hours)
+
+In reality, there is a [substantial overlap]{.darkturquoise2} in methodology between the two activities.
+
+## What is the difference between communication and exploration? {.transition-slide .center .center-align}
+
+## 
+
+:::: {.columns}
+::: {.column}
+
+### Exploration 
+
+Learn as [much]{.darkpink2} as possible about the data, as [fast]{.darkpink2} as possible, without missing anything.
+
+::: {.fragment}
+Allow oneself to be [surprised]{.darkpink2}.
+:::
+
+::: {.fragment}
+First think about what you might [expect to see]{.darkpink2}, and then you can evaluate whether is it surprising.
+:::
+:::
+
+::: {.column}
+
+::: {.fragment}
+
+### Communication
+
+Do [one]{.darkpink2} thing well!
+
+:::
+
+::: {.fragment}
+What is the [main message]{.darkpink2} to be communicated? The primary purpose for the [plot design]{.darkpink2} is to make this easy to see.
+:::
+
+::: {.fragment}
+Is there a second, or a third message? This can be factored into the design secondarily.
+:::
+
+:::
+
+::::
+
+## Example: Exploration [(1/2)]{.f50}
+
+:::: {.columns}
+::: {.column width=80%}
+![](images/orderDate_itemID.png)
+:::
+::: {.column style="font-size: 80%; width: 20%;"}
+
+One of the *ugliest* plots ever, but one of the most useful.
+
+Training set is **different** from the test set. Getting the best predictive accuracy on the test set will need training the model taking this difference into account.
+
+**The team won the competition!**
+
+:::
+::::
+
+## Example: Exploration [(2/2)]{.f50}
+
+```{r}
+#| label: tb-data
+#| echo: false
+tb <- read_csv("data/TB_notifications_2023-08-21.csv") |>
+  filter(country == "Australia", year > 1996, year < 2013) |>
+  select(year, contains("new_sp")) 
+tb_tidy <- tb |>
+  select(-new_sp, -new_sp_m04, -new_sp_m514, 
+                  -new_sp_f04, -new_sp_f514) |> 
+  pivot_longer(starts_with("new_sp"), 
+    names_to = "sexage", 
+    values_to = "count") |>
+  mutate(sexage = str_remove(sexage, "new_sp_")) |>
+  separate_wider_position(
+    sexage,
+    widths = c(sex = 1, age = 4),
+    too_few = "align_start"
+  ) 
+```
+
+:::: {.columns}
+::: {.column}
+
+```{r}
+#| echo: false
+#| fig-width: 5
+#| fig-height: 3
+#| out-width: 60%
+tb_tidy |>
+  group_by(year) |>
+  summarise(count = sum(count, na.rm=T)) |>
+  ggplot(aes(x=year, y=count)) +
+    geom_col() +
+    theme(aspect.ratio=0.7)
+```
+
+::: {.fragment fragment-index=2}
+
+```{r}
+#| echo: false
+#| fig-width: 8
+#| fig-height: 5
+#| out-width: 100%
+tb_tidy |>
+  filter(age %in% c("1524", "2534", "3544")) |>
+  group_by(year, age, sex) |>
+  summarise(count = sum(count, na.rm=T)) |>
+  ggplot(aes(x=year, y=count)) +
+    geom_col() +
+    facet_grid(sex~age) +
+    theme(aspect.ratio=0.7)
+```
+:::
+
+:::
+::: {.column}
+
+::: {.fragment fragment-index=1}
+
+```{r}
+#| echo: false
+#| fig-width: 7
+#| fig-height: 6.5
+#| out-width: 70%
+tb_tidy |>
+  group_by(year, age) |>
+  summarise(count = sum(count, na.rm=T)) |>
+  ggplot(aes(x=year, y=count)) +
+    geom_col() +
+    facet_wrap(~age, ncol=3) +
+    theme(aspect.ratio=0.7)
+```
+
+:::
+
+::: {.fragment fragment-index=3 style="font-size: 70%;"}
+
+- Look at the data from *many sides*.
+- Fix problems, re-plot.
+- Drill down to see finer detail. 
+- Check your expectations or surprising patterns, using inferential methods.
+:::
+
+:::
+::::
+
+
+## Example: Communication
+
+:::: {.columns}
+::: {.column width=40%}
+
+[Primary message]{.darkpink2}: *incidence for young adults is increasing*
+
+This needs to be the **first** pattern that a **viewer sees**.
+
+<br><br>
+
+Secondary patterns: *more incidence among men*, *older ages*. 
+
+Plus, nicer axes, nicer labels, title, good colour, symbols, annotations
+
+```{r}
+#| echo: false
+tb_tidy <- tb_tidy |>
+  filter(!(age %in% c("u", "014"))) |>
+  mutate(age = fct_recode(age, 
+                          "15-24" = "1524",
+                          "15-24" = "1524",
+                          "25-34" = "2534",
+                          "35-44" = "3544",
+                          "45-54" = "4554",
+                          "55-64" = "5564",
+                          ">65" = "65"))
+tb_tidy_smry <- tb_tidy |>
+  group_by(year, age, sex) |>
+  summarise(count = sum(count, na.rm=T)) 
+
+```
+
+:::
+
+
+::: {.column width=60%}
+
+::: {.panel-tabset}
+
+## 1
+
+```{r}
+#| echo: false
+#| fig-width: 9
+#| fig-height: 3
+#| out-width: 100%
+ggplot(tb_tidy_smry, aes(x=year, y=count)) +
+    geom_col() +
+    facet_grid(sex~age) +
+    theme(aspect.ratio=0.7)
+```
+
+## 2
+
+```{r}
+#| echo: false
+#| fig-width: 8
+#| fig-height: 5
+#| out-width: 100%
+base_plot <- ggplot(tb_tidy_smry, aes(x=year, y=count, colour=sex)) +
+    geom_point(alpha=0.5) +
+    geom_smooth(method="lm", se=F) +
+    facet_wrap(~age, ncol=3) +
+    scale_color_manual("", values = hcl.colors(7, palette="Zissou 1")[c(1,6)]) 
+base_plot +
+  theme(aspect.ratio=0.7) 
+```
+
+## 3
+
+```{r}
+#| echo: false
+#| fig-width: 8
+#| fig-height: 5
+#| out-width: 100%
+base_plot + scale_y_continuous("count", breaks=seq(0, 50, 20)) +
+    theme(aspect.ratio=0.7, 
+          axis.text = element_text(colour = "grey80"),
+          axis.title = element_text(colour = "grey80"),
+          panel.grid.major = element_line(colour = "grey80",
+                                          linewidth=0.1),
+          panel.background  =
+            element_rect(fill = 'transparent', colour = "grey80"),
+          strip.background =
+            element_rect(fill = "grey90", colour = "grey90")
+          ) 
+```
+
+## 4
+
+```{r}
+#| echo: false
+#| fig-width: 8
+#| fig-height: 5
+#| out-width: 100%
+base_plot + scale_y_continuous("count", breaks=seq(0, 50, 20)) +
+    labs(title = "Incidence of tuberculosis", 
+         subtitle = "Growing in young adults") +
+    theme(aspect.ratio=0.7, 
+          axis.text = element_text(colour = "grey80"),
+          axis.title = element_text(colour = "grey80"),
+          panel.grid.major = element_line(colour = "grey80",
+                                          linewidth=0.1),
+          panel.background  =
+            element_rect(fill = 'transparent', colour = "grey80"),
+          strip.background =
+            element_rect(fill = "grey90", colour = "grey90"),
+          plot.title = element_text(size = 24, colour = "black", 
+                                    face = "bold"),
+          plot.subtitle = element_text(size = 18, colour = "black")
+          ) 
+```
+
+
+## 5
+
+```{r}
+#| echo: false
+#| fig-width: 8
+#| fig-height: 5
+#| out-width: 100%
+ggplot(tb_tidy_smry, aes(x=year, y=count, colour=sex)) +
+    geom_point(alpha=0.3) +
+    geom_smooth(method="lm", se=F, linewidth=1.5) +
+    facet_wrap(~age, ncol=3) +
+    scale_color_manual("", values = deutan(hcl.colors(7, palette="Zissou 1")[c(1,6)])) +
+    scale_y_continuous("count", breaks=seq(0, 50, 20)) +
+    labs(title = "Incidence of tuberculosis", 
+         subtitle = "Growing in young adults") +
+    theme(aspect.ratio=0.7, 
+          axis.text = element_text(colour = "grey80"),
+          axis.title = element_text(colour = "grey80"),
+          panel.grid.major = element_line(colour = "grey80",
+                                          linewidth=0.1),
+          panel.background  =
+            element_rect(fill = 'transparent', colour = "grey80"),
+          strip.background =
+            element_rect(fill = "grey90", colour = "grey90"),
+          plot.title = element_text(size = 24, colour = "black", 
+                                    face = "bold"),
+          plot.subtitle = element_text(size = 18, colour = "black")
+          )
+```
+
+
+## 6
+
+```{r}
+#| echo: false
+#| fig-width: 8
+#| fig-height: 5
+#| out-width: 100%
+ggplot(tb_tidy_smry, aes(x=year, y=count, colour=sex)) +
+    geom_point(alpha=0.3) +
+    geom_smooth(method="lm", se=F, linewidth=1.5) +
+    facet_wrap(~age, ncol=3) +
+    scale_color_manual("", values = hcl.colors(7, palette="Zissou 1")[c(6, 1)]) +
+    scale_y_continuous("count", breaks=seq(0, 50, 20)) +
+    labs(title = "Incidence of tuberculosis", 
+         subtitle = "Growing in young adults") +
+    geom_curve(data=filter(tb_tidy_smry, age == "15-24"), aes(x = 2007, y = 43, xend = 2010, yend = 39), 
+                             colour = "#3B99B1", 
+                             size=0.5, 
+                             curvature = -0.2,
+                             arrow = arrow(length = unit(0.03, "npc"))) +
+    geom_label(data=filter(tb_tidy_smry, age == "15-24"), 
+               aes(x = 2006, y = 42, label = "men"), 
+                   hjust = 0.8, vjust = 0.5, colour = "#3B99B1", 
+             fill = 'transparent', 
+             label.size = NA, 
+             family="Helvetica") +
+    geom_segment(data=filter(tb_tidy_smry, age == "15-24"), 
+                 aes(x = 2010, y = 18, xend = 2010, yend = 25), 
+                             colour = "#E87700", 
+                             size=0.5, 
+                             curvature = 0.2,
+                             arrow = arrow(length = unit(0.03, "npc"))) +
+    geom_label(data=filter(tb_tidy_smry, age == "15-24"), 
+               aes(x = 2010, y = 16, label = "women"), 
+                   hjust = 0.5, vjust = 0.8, colour = "#E87700", 
+             fill = 'transparent', 
+             label.size = NA, 
+             family="Helvetica") +
+     theme(aspect.ratio=0.7, 
+          axis.text = element_text(colour = "grey80"),
+          axis.title = element_text(colour = "grey80"),
+          panel.grid.major = element_line(colour = "grey80",
+                                          linewidth=0.1),
+          panel.background  =
+            element_rect(fill = 'transparent', colour = "grey80"),
+          strip.background =
+            element_rect(fill = "grey90", colour = "grey90"),
+          plot.title = element_text(size = 24, colour = "black", 
+                                    face = "bold"),
+          plot.subtitle = element_text(size = 18, colour = "black"),
+          legend.position = "none"
+          ) 
+```
+
+:::
+
+:::
+::::
+
+## End of session 0 {.center .align-center}
+
+<a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+ 

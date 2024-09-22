@@ -1,0 +1,797 @@
+---
+title: "Training course: Plotting Data for Communication and Exploration"
+author: "Dianne Cook <br> Monash University <br> Produced for e61, September 23, 2024"
+title-slide-attributes:
+  data-background-color: "#8ACE00"
+  data-background-opacity: "0.5"
+format:
+  revealjs: 
+    multiplex: false
+    theme: 
+      - default
+      - custom.scss
+    slide-number: c/t
+    chalkboard: false
+    width: 1600
+    height: 900
+    margin: 0.05
+    slide-tone: false
+    embed-resources: true
+code-line-numbers: false
+message: false
+highlight-style: pygments
+footer: "[https://github.com/dicook/e61_training](https://github.com/dicook/e61_training)"
+---
+
+```{r, include = FALSE}
+source("setup.R")
+```
+
+```{r}
+#| echo: false
+#| eval: false
+# divergingx_hcl(palette="Zissou 1", n=10)
+# [1] "#3B99B1" "#40ABA5" "#6FB798" "#9FC095" "#C7C98A"
+# [6] "#EABE23" "#E8A419" "#E78802" "#EA6400" "#F5191C"
+# specplot(divergingx_hcl(palette="Zissou 1", n=10))
+```
+
+
+## Session 3: Plotting data for exploration (mostly) 
+
+```{r}
+#| echo: false
+plan <- tribble(~time, ~topic,
+"15",	"Initial data analysis",
+"30", "Exploring data",
+"15",	"constructing null samples",
+"20", "Wrap-up: questions, discussion, other topics"
+)
+knitr::kable(plan)
+```
+
+## Initial data analysis {.transition-slide .center .center-align}
+
+## Role of initial data analysis
+
+:::: {.columns}
+::: {.column}
+*The first thing to do with data is to [look at them]{.darkturquoise2} .... usually means [tabulating]{.darkturquoise2} and [plotting]{.darkturquoise2} the data in many different ways to [see what’s going on]{.darkturquoise2}. With the wide availability of computer packages and graphics nowadays there is no excuse for ducking the labour of this preliminary phase, and it may save some* [**red faces**]{.darkpink2} *later.*
+
+[[Crowder, M. J. & Hand, D. J.  (1990) "Analysis of Repeated Measures"](https://doi.org/10.1201/9781315137421)]{.f50}
+
+:::
+
+::: {.column}
+
+::: {.fragment}
+
+IDA includes:
+
+- describing the data and collection procedures
+- scrutinise data for 
+    - errors, 
+    - outliers/anomalies
+    - missing observations
+- check assumptions needed for modeling 
+
+:::
+
+:::
+
+::::
+
+## Exploring missing values 
+
+[World Development Indicators](https://databank.worldbank.org/source/world-development-indicators/), 2004-2022 data for selected series. 
+
+:::: {.columns}
+
+::: {.column width=70%}
+
+```{r}
+#| echo: false
+wdi <- read_xlsx(here::here("data/P_Data_Extract_From_World_Development_Indicators.xlsx"), n_max = 4788)
+wdi_tidy <- wdi |>
+  select(`Country Code`, `Series Code`, `2004 [YR2004]`:`2022 [YR2022]`) |>
+    rename_all(janitor::make_clean_names) |>
+  pivot_longer(x2004_yr2004:x2022_yr2022,
+               names_to = "year", 
+               values_to = "value") |>
+  mutate(year = as.numeric(str_sub(year, 2, 5)),
+         value = as.numeric(value)) 
+
+options(width=75)
+wdi_tidy |> glimpse()
+
+```
+
+:::
+::: {.column width=20%}
+
+Tidy format variables are:
+
+- country
+- year
+- 18 series
+
+In long form, it can be [pivoted in different ways]{.darkpink2} to explore missing values on series, countries, and years.
+
+
+:::
+::::
+
+## The importance of tidy data format [(1/2)]{.f50}
+
+:::: {.columns}
+
+::: {.column width=70%}
+
+::: {.panel-tabset style="font-size: 70%;"}
+
+## Overall
+
+```{r}
+#| echo: false
+#| fig-width: 7
+#| fig-height: 8
+#| out-width: 50%
+wdi_tidy |>
+  pivot_wider(names_from = series_code,
+              values_from = value) |>
+  vis_miss(sort_miss = TRUE)
+```
+
+
+## Series
+
+```{r}
+#| echo: false
+#| fig-width: 5
+#| fig-height: 5
+#| out-width: 50%
+wdi_tidy |>
+  pivot_wider(names_from = series_code,
+              values_from = value) |>
+  gg_miss_var(show_pct=TRUE) + xlab("")
+```
+
+## Countries
+
+```{r}
+#| echo: false
+#| fig-width: 5
+#| fig-height: 7
+#| out-width: 40%
+set.seed(239)
+country_sub <- wdi_tidy |> 
+  select(country_code) |>
+  distinct() |>
+  pull(country_code)
+country_sub <- sample(country_sub, 50)  
+wdi_tidy |>
+  filter(country_code %in% country_sub) |>
+  pivot_wider(names_from = country_code,
+              values_from = value) |>
+  gg_miss_var(show_pct=TRUE) + xlab("") 
+```
+
+## Years
+
+```{r}
+#| echo: false
+#| fig-width: 5
+#| fig-height: 5
+#| out-width: 60%
+wdi_tidy |>
+  pivot_wider(names_from = year,
+              values_from = value) |>
+  gg_miss_var(show_pct=TRUE) + xlab("")
+```
+
+:::
+
+:::
+
+::: {.column width=30%}
+
+::: {.fragment}
+
+
+Handling missings strategy:
+
+1. Remove countries with too many missings
+2. Re-check series and years
+3. Remove series with too many missings
+4. Re-check countries and years
+5. Remove years with too many missings
+6. Re-check all
+7. Impute missings using a temporal imputation
+
+Read more at [R-miss-tastic](https://rmisstastic.netlify.app/).
+
+
+:::
+
+:::
+
+::::
+
+## The importance of tidy data format [(2/2)]{.f50}
+
+:::: {.columns}
+::: {.column}
+
+```{r}
+#| echo: false
+#| fig-width: 7
+#| fig-height: 8
+#| out-width: 70%
+wdi |>
+  select(`Country Code`, `Series Code`, `2004 [YR2004]`:`2022 [YR2022]`) |>
+    rename_all(janitor::make_clean_names) |>
+  vis_miss(sort_miss = TRUE)
+```
+
+Hmm, what happened?
+
+:::
+
+::: {.column}
+
+::: {.fragment}
+
+![](https://cdn.myportfolio.com/45214904-6a61-4e23-98d6-b140f8654a40/209ee1eb-fd83-4e4c-9bed-82ae43b0f3e9_rw_3840.jpg?h=b00690a8a5eef3c901d6609cfefee987)
+
+[Illustrations from [Julia Lowndes and Allison Horst](https://allisonhorst.com/other-r-fun)]{.f60}
+
+Analysis flows more neatly with tidy data format.
+
+:::
+:::
+
+::::
+
+## Exploratory data analysis {.transition-slide .center .center-align}
+
+## What can you do and what would you expect 
+
+:::: {.columns}
+::: {.column}
+
+[OECD PISA](https://www.oecd.org/en/about/programmes/pisa/pisa-data.html) data, sample from 2018
+
+<br>
+
+```{r}
+#| echo: false
+load("data/student_data_2018.rda")
+options(width=50)
+glimpse(student_data_2018)
+```
+
+:::
+::: {.column}
+
+<br><br>
+What would you expect?
+
+```{r}
+#| code-fold: true
+#| code-summary: "some things"
+# Math gap
+# More books higher score
+```
+
+:::
+::::
+
+## Explore the gap
+
+:::: {.columns}
+::: {.column width=30%}
+
+```{r}
+#| echo: false
+#| fig-height: 16
+#| fig-width: 8
+#| out-width: 80%
+load("data/math_results_tb.rda")
+load("data/student2018_stats.rda")
+student2018_stats <- student2018_stats |>
+  filter(!is.na(wreadgap))
+ggplot() +
+  #geom_linerange(data=math_results_tb,
+  #  aes(x=country, ymin=l, ymax=u)) +
+  geom_hline(yintercept = 0, 
+    colour="grey80", linewidth=2) +
+  geom_point(data=student2018_stats, 
+    aes(x=fct_reorder(country, wmathgap), 
+        y=wmathgap)) + coord_flip() +
+  xlab("") + ylab("Math gap") +
+  theme(aspect.ratio = 2)
+```
+:::
+::: {.column width=30%}
+Math gap is not universal. 😱
+
+There are now many countries where girls score higher on average than boys.
+
+::: {.fragment}
+
+On the other hand, the reading gap is universal. Girls universally score higher than boys on average. 🤯
+
+:::
+
+:::
+::: {.column width=30%}
+
+::: {.fragment}
+```{r}
+#| echo: false
+#| fig-height: 16
+#| fig-width: 8
+#| out-width: 80%
+load("data/read_results_tb.rda")
+ggplot() +
+  #geom_linerange(data=math_results_tb,
+  #  aes(x=country, ymin=l, ymax=u)) +
+  geom_hline(yintercept = 0, 
+    colour="grey80", linewidth=2) +
+  geom_point(data=student2018_stats, 
+    aes(x=fct_reorder(country, wreadgap), 
+        y=wreadgap)) + coord_flip() +
+  xlab("") + ylab("Reading gap") +
+  theme(aspect.ratio = 2)
+```
+:::
+:::
+::::
+
+## Scores relative to TVs
+
+```{r}
+#| echo: false
+#| fig-height: 8
+#| fig-width: 16
+#| out-width: 80%
+student_data_2018 |>
+  filter(!is.na(television)) |>
+  group_by(country, television) |>
+  summarise(math = mean(math, na.rm=TRUE)) |>
+  ungroup() |>
+  filter(!is.na(math)) |>
+  ggplot(aes(x=television, y=math, group=country)) +
+    geom_line() +
+    facet_wrap(~country, ncol=16)
+```
+
+## Longitudinal wages: overall trend
+
+:::: {.columns}
+::: {.column width=40%}
+
+::: {style="font-size: 80%;"}
+
+Log(wages) of 888 individuals, measured at various times in their employment [US National Longitudinal Survey of Youth]{.smallest}. 
+
+```{r}
+#| label: wages-trend1  
+#| echo: false
+#| fig-width: 6
+#| fig-height: 4
+#| out-width: 100%
+wages |>
+  ggplot() +
+    geom_line(aes(x = xp, y = ln_wages, group = id), alpha=0.1) +
+    geom_smooth(aes(x = xp, y = ln_wages), se=F) +
+    xlab("years of experience") +
+    ylab("wages (log)") +
+  theme(aspect.ratio = 0.6)
+```
+
+Wages tend to increase as time in the workforce gets longer, on average.
+:::
+
+:::
+::: {.column width=60%}
+
+::: {.fragment style="font-size: 70%;"}
+
+```{r}
+#| label: wages-trend2  
+#| echo: false
+#| fig-width: 8
+#| fig-height: 4
+#| out-width: 100%
+wages |>
+  ggplot() +
+    geom_line(aes(x = xp, y = ln_wages, group = id), alpha=0.1) +
+    geom_smooth(aes(x = xp, y = ln_wages, 
+      group = high_grade, colour = high_grade), se=F) +
+    xlab("years of experience") +
+    ylab("wages (log)") +
+  scale_colour_viridis_c("education") +
+  theme(aspect.ratio = 0.6)
+```
+
+The higher the education level achieved, the higher overall wage, on average.
+:::
+:::
+::::
+
+## Eating spaghetti
+
+:::: {.columns}
+
+::: {.column}
+
+Consider: 
+
+- sampling individuals
+- longnostics for individuals
+- diagnostics for statistical models
+
+:::
+
+::: {.column style="font-size: 70%;"}
+
+::: {.panel-tabset}
+
+## Sample 1
+
+```{r}
+#| label: sample-n1
+#| echo: false
+#| fig-width: 6
+#| fig-height: 5
+set.seed(753)
+wages |>
+  sample_n_keys(size = 10) |> 
+  ggplot(aes(x = xp,
+             y = ln_wages,
+             group = id,
+             colour = as.factor(id))) + 
+  geom_line() +
+  xlim(c(0,13)) + ylim(c(0, 4.5)) +
+  xlab("years of experience") +
+  ylab("wages (log)") +
+  theme(aspect.ratio = 0.6, legend.position = "none")
+```
+ 
+## Sample 2
+
+```{r}
+#| label: sample-n2
+#| echo: false
+#| fig-width: 6
+#| fig-height: 5
+set.seed(749)
+wages |>
+  sample_n_keys(size = 10) |> 
+  ggplot(aes(x = xp,
+             y = ln_wages,
+             group = id,
+             colour = as.factor(id))) + 
+  geom_line() +
+  xlim(c(0,13)) + ylim(c(0, 4.5)) +
+  xlab("years of experience") +
+  ylab("wages (log)") +
+  theme(aspect.ratio = 0.6, legend.position = "none")
+```
+
+## Sample 3
+
+```{r}
+#| label: sample-n3
+#| echo: false
+#| fig-width: 6
+#| fig-height: 5
+set.seed(757)
+wages |>
+  sample_n_keys(size = 10) |> 
+  ggplot(aes(x = xp,
+             y = ln_wages,
+             group = id,
+             colour = as.factor(id))) + 
+  geom_line() +
+  xlim(c(0,13)) + ylim(c(0, 4.5)) +
+  xlab("years of experience") +
+  ylab("wages (log)") +
+  theme(aspect.ratio = 0.6, legend.position = "none")
+```
+
+:::
+
+*Few individuals experience wages like the overall trend.*
+
+:::  
+::::
+
+## Explore individual patterns
+
+:::: {.columns}
+
+::: {.column}
+Measuring interesting
+<br>
+
+Compute [longnostics]{.darkturquise2} for each subject, for example,
+
+- Slope, intercept from simple linear model
+- Variance, standard deviation
+- Jumps, differences
+:::
+
+::: {.column style="font-size: 70%;"}
+
+::: {.panel-tabset}
+
+## Increasing
+
+```{r}
+#| label: increasing
+#| echo: false
+#| fig-width: 6
+#| fig-height: 5
+wages_slope <- wages |>   
+  add_n_obs() |>
+  filter(n_obs > 4) |>
+  add_key_slope(ln_wages ~ xp) |> 
+  as_tsibble(key = id, index = xp) 
+wages_spread <- wages |>
+  features(ln_wages, feat_spread) |>
+  right_join(wages_slope, by="id")
+
+wages_slope |> 
+  filter(.slope_xp > 0.3) |> 
+  ggplot(aes(x = xp, 
+             y = ln_wages, 
+             group = id,
+             colour = factor(id))) + 
+  geom_line() +
+  xlim(c(0, 4.5)) +
+  ylim(c(0, 4.5)) +
+  xlab("years of experience") +
+  ylab("wages (log)") +
+  theme(aspect.ratio = 0.6, legend.position = "none")
+```
+
+## Decreasing
+
+```{r}
+#| label: decreasing
+#| echo: false
+#| fig-width: 6
+#| fig-height: 5
+wages_slope |> 
+  filter(.slope_xp < (-0.4)) |> 
+  ggplot(aes(x = xp, 
+             y = ln_wages, 
+             group = id,
+             colour = factor(id))) + 
+  geom_line() +
+  xlim(c(0, 4.5)) +
+  ylim(c(0, 4.5)) +
+  xlab("years of experience") +
+  ylab("wages (log)") +
+  theme(aspect.ratio = 0.6, legend.position = "none")
+```
+
+## Consistent
+
+```{r}
+#| label: small-sigma
+#| echo: false
+#| fig-width: 6
+#| fig-height: 5
+wages_spread |> 
+  filter(sd < 0.1) |> 
+  ggplot(aes(x = xp, 
+             y = ln_wages, 
+             group = id,
+             colour = factor(id))) + 
+  geom_line() +
+  xlim(c(0, 12)) +
+  ylim(c(0, 4.5)) +
+  xlab("years of experience") +
+  ylab("wages (log)") +
+  theme(aspect.ratio = 0.6, legend.position = "none")
+```
+
+## Volatile
+
+```{r}
+#| label: large-sigma
+#| echo: false
+#| fig-width: 6
+#| fig-height: 5
+wages_spread |> 
+  filter(sd > 0.8) |> 
+  ggplot(aes(x = xp, 
+             y = ln_wages, 
+             group = id,
+             colour = factor(id))) + 
+  geom_line() +
+  xlim(c(0, 12)) +
+  ylim(c(0, 4.5)) +
+  xlab("years of experience") +
+  ylab("wages (log)") +
+  theme(aspect.ratio = 0.6, legend.position = "none")
+```
+
+:::
+:::
+::::
+
+## Principles to consider
+
+- Map out what can be computed, plotted
+- Think about what you would expect to find
+- What's missing? Data collected may not support reliable findings E.g. Atlas of Living Australia
+- Compared to what. Some observation samples might be "fixed" by matching on some variables.
+- Is what you see really there?
+
+## Adding interaction {.transition-slide .center .center-align}
+
+## Connecting series to tignostics
+
+```{r}
+#| label: tsibbletalk1
+#| echo: false
+#| fig-height: 5
+#| fig-width: 10
+#| out-width: 100%
+tourism_shared <- tourism |>
+  as_shared_tsibble(spec = (State / Region) * Purpose)
+
+tourism_feat <- tourism_shared |>
+  features(Trips, feat_stl)
+
+p1 <- tourism_shared |>
+  ggplot(aes(x = Quarter, y = Trips)) +
+  geom_line(aes(group = Region), alpha = 0.5) +
+  facet_wrap(~ Purpose, scales = "free_y") +
+  theme(axis.title = element_text(family="Helvetica"),
+        axis.text = element_text(family="Helvetica"),
+        legend.title = element_text(family="Helvetica"),
+        legend.text = element_text(family="Helvetica"))
+p2 <- tourism_feat |>
+  ggplot(aes(x = trend_strength, y = seasonal_strength_year)) +
+  geom_point(aes(group = Region)) +
+  xlab("trend") + ylab("season") +
+  theme(axis.title = element_text(family="Helvetica"),
+        axis.text = element_text(family="Helvetica"),
+        legend.title = element_text(family="Helvetica"),
+        legend.text = element_text(family="Helvetica"),
+        plot.title = element_text(family="Helvetica"))
+  
+subplot(
+    ggplotly(p1, tooltip = "Region", width = 1400, height = 700) |>
+  config(displayModeBar = FALSE),
+    ggplotly(p2, tooltip = "Region", width = 1200, height = 600) |>
+  config(displayModeBar = FALSE),
+    nrows = 1, widths=c(0.5, 0.5), heights=1) |>
+  highlight(dynamic = FALSE)
+  
+```
+
+[[Read more about tsibbletalk here](https://github.com/earowang/tsibbletalk)]{.f70}
+
+## Creating null samples to assess the strength of patterns {.transition-slide .center .center-align}
+
+## Does this model fit?
+
+
+:::: {.columns}
+::: {.column width=30%}
+
+<br><br>
+Which plot is most different?
+
+<br>
+```{r}
+#| code-fold: true
+#| code-summary: "null sample method"
+# Simulated data from a polynomial shape 
+# which tries to model three-point success
+```
+
+:::
+
+::: {.column width=70%}
+
+
+```{r}
+#| echo: false
+#| out-width: 80%
+#| fig-width: 7
+#| fig-height: 6
+set.seed(538)
+threept <- subset(lal, type == "3pt" & !is.na(x) & !is.na(y))
+threept <- threept[c(".id", "period", "time", "team", "etype", "player", "points", "result", "x", "y")]
+threept <- transform(threept, 
+  x = x + runif(length(x), -0.5, 0.5),
+  y = y + runif(length(y), -0.5, 0.5))
+threept <- transform(threept, 
+  r = sqrt((x - 25) ^ 2 + y ^ 2),
+  angle = atan2(y, x - 25))
+
+# Focus in on shots in the typical range
+threept_sub <- threept %>% 
+  filter(between(r, 20, 39)) %>%
+  mutate(angle = angle * 180 / pi) %>%
+  select(angle, r)
+
+ggplot(lineup(null_lm(r ~ poly(angle, 2)), 
+              true=threept_sub, n = 20, pos = 2), 
+       aes(x=angle, y=r)) + 
+  geom_point(alpha=0.3) + 
+  scale_x_continuous("Angle (degrees)", 
+  breaks = c(0, 45, 90, 135, 180), limits = c(0, 180)) +
+  facet_wrap(~ .sample, ncol = 5) +
+  theme_bw() +
+  theme(axis.text=element_blank(),
+        axis.title=element_blank())
+
+```
+:::
+::::
+
+
+## Is there really a relationship?
+
+
+:::: {.columns}
+::: {.column width=30%}
+
+<br><br>
+Which plot is most different?
+
+<br>
+```{r}
+#| code-fold: true
+#| code-summary: "null sample method"
+# Permute the class variable 
+# which breaks association
+```
+
+:::
+
+::: {.column width=70%}
+
+
+```{r}
+#| echo: false
+#| out-width: 80%
+#| fig-width: 7
+#| fig-height: 6
+set.seed(536)
+ggplot(data=lineup(method=null_permute("mpg"), 
+                   n = 12, true=mtcars)) +
+  geom_boxplot(aes(x=factor(cyl), 
+                   y=mpg, 
+                   fill=factor(cyl))) +
+  scale_fill_discrete_divergingx(palette = "Zissou 1") +
+  facet_wrap(~.sample, ncol=4) +
+  theme(legend.position="none",
+        axis.text = element_blank(),
+        axis.title = element_blank())
+```
+:::
+::::
+
+## Resources
+
+- [R-miss-tastic](https://rmisstastic.netlify.app/)
+- [tidyverts](https://tidyverts.org/)
+- [Browsing longitudinal data](https://brolgar.njtierney.com/)
+- - [Graphical inference](https://vita.had.co.nz/papers/inference-infovis.pdf)
+
+
+## Wrap Up - Questions?  {.transition-slide .center .center-align}
+
+## End of session 3 {.center}
+
+<a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+ 
