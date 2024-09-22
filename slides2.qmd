@@ -675,8 +675,7 @@ A cartogram expands a geographic are relative to the population in the area.
 <br><br>
 See more on [cartograms here](https://go-cart.io/cartogram). 
 
-<br>
-And for a hexagon tiling that works better for Australia [here](https://srkobakian.github.io/sugarbag/).
+A better solution for Australia is needed, though.
 :::
 ::::
 
@@ -765,8 +764,8 @@ ggplotly(cm3, width=800, height=600) |>
 ## Resources
 
 - [Graphical inference](https://vita.had.co.nz/papers/inference-infovis.pdf)
-- Moraga [Geospatial Health Data:](https://www.paulamoraga.com/book-geospatial/index.html)
-- [Simple features](https://r-spatial.github.io/sf/)
+- Moraga [Geospatial Health Data](https://www.paulamoraga.com/book-geospatial/index.html)
+- Working with spatial polygons using [simple features](https://r-spatial.github.io/sf/)
 
 
 

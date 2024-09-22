@@ -44,7 +44,7 @@ source("setup.R")
 plan <- tribble(~time, ~topic,
 "15",	"Initial data analysis",
 "30", "Exploring data",
-"15",	"constructing null samples",
+"15",	"Constructing null samples",
 "20", "Wrap-up: questions, discussion, other topics"
 )
 knitr::kable(plan)
@@ -628,7 +628,7 @@ wages_spread |>
 
 - Map out what can be computed, plotted
 - Think about what you would expect to find
-- What's missing? Data collected may not support reliable findings E.g. Atlas of Living Australia
+- What's missing? Data collected may not support reliable findings e.g. Atlas of Living Australia
 - Compared to what. Some observation samples might be "fixed" by matching on some variables.
 - Is what you see really there?
 
@@ -781,12 +781,69 @@ ggplot(data=lineup(method=null_permute("mpg"),
 :::
 ::::
 
+## Is it really there?
+
+:::: {.columns}
+::: {.column width=30%}
+
+<br><br>
+Which plot has the biggest difference between groups?
+
+<br>
+```{r}
+#| code-fold: true
+#| code-summary: "null sample method"
+# Permute the group variable 
+# which breaks association
+```
+
+:::
+
+::: {.column width=70%}
+
+
+```{r}
+#| echo: false
+#| out-width: 80%
+#| fig-width: 7
+#| fig-height: 6
+set.seed(711)
+wasps <- wasps |> dplyr::select(-ID)
+library(MASS)
+wasps_lda <- as_tibble(predict(lda(Group~., data=wasps), dimen=2)$x)
+wasps_lda <- bind_cols(wasps, wasps_lda)
+
+wasps_lineup <- NULL
+for (i in 1:11) {
+  x <- wasps
+  x$Group <- sample(x$Group)
+  x_lda <- as_tibble(predict(lda(Group~., data=x), dimen=2)$x)
+  x_lda <- bind_cols(x |> dplyr::select(Group), x_lda)
+  x_lda$.sample <- i
+  wasps_lineup <- bind_rows(wasps_lineup, x_lda)
+}
+wasps_lda <- wasps_lda |> dplyr::select(Group, LD1, LD2)
+wasps_lda$.sample <- 12
+wasps_lineup <- bind_rows(wasps_lineup, wasps_lda)
+ggplot(wasps_lineup, aes(x=LD1, y=LD2, colour=Group)) +
+  geom_point() +
+  facet_wrap(~.sample, ncol=4) + 
+  scale_colour_discrete_divergingx(palette = "Zissou 1") +   
+  theme(legend.position="none",
+        axis.text = element_blank(),
+        axis.title = element_blank()
+  )
+```
+
+:::
+::::
+
 ## Resources
 
 - [R-miss-tastic](https://rmisstastic.netlify.app/)
-- [tidyverts](https://tidyverts.org/)
+- Tidy tools for temporal data: [tidyverts](https://tidyverts.org/)
 - [Browsing longitudinal data](https://brolgar.njtierney.com/)
-- - [Graphical inference](https://vita.had.co.nz/papers/inference-infovis.pdf)
+- [Graphical inference](https://vita.had.co.nz/papers/inference-infovis.pdf)
 
 
 ## Wrap Up - Questions?  {.transition-slide .center .center-align}

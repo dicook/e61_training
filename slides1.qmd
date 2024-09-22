@@ -394,14 +394,16 @@ plot(data = <DATA>) +
 #| eval: false
 #| class-source: code_block_med
 #| classes: code_block_med
-#| code-line-numbers: "5,8,9"
+#| code-line-numbers: "5,6,9,10,11"
 tb_yr <- tb_tidy |>
   group_by(year) |>
   summarise(count = sum(count, na.rm=TRUE)) 
-gg1 <- ggplot(tb_yr, aes(x=year, y=count)) +
+gg1 <- ggplot(tb_yr, 
+  aes(x=year, y=count)) +
   geom_col() +
   ylim(c(0, 350))
-gg2 <- ggplot(tb_yr, aes(x=year, y=count)) +
+gg2 <- ggplot(tb_yr, 
+  aes(x=year, y=count)) +
   geom_point() +
   geom_smooth(se=F) +
   ylim(c(0, 350))
@@ -1699,6 +1701,17 @@ Elements that are [important in plot design]{.darkpink2} are many.
 <br><br>
 How would you fix these plots?
 
+<br><br><br>
+```{r}
+#| code-fold: true
+#| code-summary: "Some answers"
+# 1: soften grid, resolve axis overlap
+# 2: put line over points
+# 3: remove repeats '000
+# 4: aspect ratio=1 to read association
+# 5: re-map variables
+```
+
 :::
 ::: {.column width=80%}
 
@@ -2130,8 +2143,8 @@ People have short memory. Help memory using [persistence of objects]{.dark-pink2
 
 - Holtz [From Data to Vis](https://www.data-to-viz.com/#explore)
 - Sievert [Interactive web-based data visualization](https://plotly-r.com/)
-- [BBC Cookbook](https://bbc.github.io/rcookbook/_
-- [colorspace](https://colorspace.r-forge.r-project.org/articles/ggplot2_color_scales.html)
+- [BBC Cookbook](https://bbc.github.io/rcookbook/)
+- Tools for managing colour in [colorspace](https://colorspace.r-forge.r-project.org/articles/ggplot2_color_scales.html)
 
 ## End of session 1 {.center}
 
