@@ -23,12 +23,12 @@ This is a training course on data visualisation skills for e61.
     - Adding interactivity
     - Creating null samples to assess the strength of patterns.
 
-[Session 0 Slides](https://github.com/dicook/e61_training/slides0.html)
+[Session 0 Slides](https://dicook.github.io/e61_training/slides0.html)
 
-[Session 1 Slides](https://github.com/dicook/e61_training/slides1.html)
+[Session 1 Slides](https://dicook.github.com/e61_training/slides1.html)
 
-[Session 2 Slides](https://github.com/dicook/e61_training/slides2.html)
+[Session 2 Slides](https://dicook.github.com/e61_training/slides2.html)
 
-[Session 3 Slides](https://github.com/dicook/e61_training/slides3.html)
+[Session 3 Slides](https://dicook.github.com/e61_training/slides3.html)
 
 
