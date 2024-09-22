@@ -2,7 +2,7 @@
 
 <img src="" align="right" width="150" />
 
-Website: [TO BE CREATED]()
+Website: [https://github.com/dicook/e61_training/](https://github.com/dicook/e61_training/)
 
 This is a training course on data visualisation skills for e61. 
 
@@ -25,27 +25,12 @@ This is a training course on data visualisation skills for e61.
     - Adding interactivity
     - Creating null samples to assess the strength of patterns.
 
+[Session 0 Slides](https://github.com/dicook/e61_training/slides0.html)
 
-[Session 1 Slides](https://statsocaus.github.io/tutorial_effective_data_plots/slides1.html)
+[Session 1 Slides](https://github.com/dicook/e61_training/slides1.html)
 
-[Session 2 Slides](https://statsocaus.github.io/tutorial_effective_data_plots/slides2.html)
+[Session 2 Slides](https://github.com/dicook/e61_training/slides2.html)
 
-[Zip file of materials](https://statsocaus.github.io/tutorial_effective_data_plots/tutorial.zip)
+[Session 3 Slides](https://github.com/dicook/e61_training/slides3.html)
 
-## Getting started
-
-1. You should have a reasonably up to date version of R and R Studio, eg RStudio RStudio 2023.06.2 +561 and R version 4.3.1 (2023-06-16). Install the following packages, and their dependencies.
-
-```
-install.packages(c("ggplot2", "tidyr", "dplyr", "readr", "stringr", "nullabor", "colorspace", "palmerpenguins", "broom", "ggbeeswarm"), dependencies=c("Depends", "Imports"))
-```
-
-2. Download the [Zip file of materials](https://statsocaus.github.io/tutorial_effective_data_plots/tutorial.zip) to your laptop, and unzip it. 
-
-3. Download just the R scripts, [slides1.R](https://statsocaus.github.io/tutorial_effective_data_plots/slides1.R), [slides2.R](https://statsocaus.github.io/tutorial_effective_data_plots/slides2.R)
-
-4. Open your RStudio be clicking on `tutorial.Rproj`. 
-
-GitHub repo with all materials is 
-[https://statsocaus.github.io/tutorial_effective_data_plots/](https://statsocaus.github.io/tutorial_effective_data_plots/).
 
