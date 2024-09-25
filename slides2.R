@@ -1,8 +1,8 @@
-## ----include = FALSE----------------------------------
+## ----include = FALSE------------------------------------------
 source("setup.R")
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| eval: false
 ## # divergingx_hcl(palette="Zissou 1", n=10)
@@ -11,7 +11,7 @@ source("setup.R")
 ## # specplot(divergingx_hcl(palette="Zissou 1", n=10))
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 plan <- tribble(~time, ~topic,
 "30",	"Determining which plot is the most effective",
@@ -22,7 +22,7 @@ plan <- tribble(~time, ~topic,
 knitr::kable(plan)
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| code-fold: true
 #| code-summary: "some possible patterns"
 # scatterplot with points spread everywhere
@@ -31,7 +31,7 @@ knitr::kable(plan)
 # no difference between colour groups
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| fig-width: 6
 #| fig-height: 4
@@ -51,7 +51,7 @@ ggplot(lineup(null_permute('mpg'), n=12,
         plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"))
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| fig-width: 6
 #| fig-height: 4
@@ -71,7 +71,7 @@ ggplot(lineup(null_permute('mpg'), n=12,
         plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"))
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| fig-width: 8
 #| fig-height: 3
@@ -99,7 +99,7 @@ m2 <- d2 |>
 m1 + m2 + plot_layout(ncol=2)
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| eval: false
 ## library(readabs)
@@ -127,7 +127,7 @@ m1 + m2 + plot_layout(ncol=2)
 ## save(lfs_2023_sub, file="data/lfs_2023_sub.rda")
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 load("data/lfs_2023_sub.rda")
 lfs_2023_sub <- lfs_2023_sub |>
@@ -156,7 +156,7 @@ lfs_2023_sub_l <- lfs_2023_sub_l |>
   mutate(.sample = pos[lfs_2023_sub_l$.sample])
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| fig-width: 9
 #| fig-height: 6
@@ -174,7 +174,7 @@ ggplot(lfs_2023_sub_l, aes(x=6, y=400)) +
          color = "black"))
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| fig-width: 9
 #| fig-height: 6
@@ -186,7 +186,7 @@ ggplot(lfs_2023_sub_l, aes(x=month, y=value)) +
   theme(legend.position = "none")
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| fig-width: 9
 #| fig-height: 6
@@ -202,7 +202,7 @@ ggplot(data = lfs_2023_sub_l, aes(x="",
   theme(legend.position = "none")
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| fig-width: 8
 #| fig-height: 6
@@ -223,7 +223,7 @@ df |>
   geom_line(alpha = 0.25)
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| fig-width: 8
 #| fig-height: 6
@@ -256,7 +256,7 @@ mtcars_boot |>
   coord_cartesian(ylim = c(0, 400))
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| fig-width: 8
 #| fig-height: 8
@@ -280,7 +280,7 @@ highlight_key(p_std) |>
   highlight("plotly_selected")
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 world_map <- map_data("world")
 world_map |> 
@@ -288,7 +288,7 @@ world_map |>
       DT::datatable(width=1150, height=100)
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| fig-width: 4
 #| fig-height: 12
@@ -313,7 +313,7 @@ m3 <- ggplot(oz, aes(x = long, y = lat,
 m1 + m2 + m3 + plot_layout(ncol=1)
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| fig-width: 4
 #| fig-height: 12
@@ -338,7 +338,7 @@ m3 <- ggplot(oz, aes(x = long, y = lat,
 m1 + m2 + m3 + plot_layout(ncol=1)
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 # Read the data
 # Replace null with 0, for three LGAs
@@ -354,7 +354,7 @@ covid <- read_csv("data/melb_lga_covid.csv") |>
   mutate(cases=replace_na(cases, 0))
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 
 # Case counts are cumulative, keep only latest
@@ -362,7 +362,7 @@ covid <- covid |>
   filter(Date == ymd("2020-10-20"))
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| eval: false
 #| echo: false
 #| message: false
@@ -383,7 +383,7 @@ covid <- covid |>
 ## save(lga, file="data/lga.rda")
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| eval: false
 ## ggplot(lga) + geom_sf() + theme_map()
@@ -393,7 +393,7 @@ covid <- covid |>
 ## ggplot(lga_sm) + geom_sf() + theme_map()
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| fig-width: 8
 #| fig-height: 6
@@ -417,7 +417,7 @@ cm1
 # plotly::ggplotly() 
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| fig-width: 8
 #| fig-height: 6
@@ -453,7 +453,7 @@ cm2 <- ggplot(covid_tot_carto) +
 cm2 
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 # Placement of hexmaps depends on position relative to
 # Melbourne central
@@ -462,9 +462,6 @@ covid_hexmap <- create_hexmap(
   shp = covid_tot,
   sf_id = "NAME",
   focal_points = capital_cities, verbose = TRUE)
-# This shows the centroids of the hexagons
-#ggplot(covid_hexmap, aes(x=hex_long, y=hex_lat)) +
-#  geom_point()
 
 # Hexagons are made with the `fortify_hexagon` function
 covid_hexmap_poly <- covid_hexmap |>
@@ -488,21 +485,21 @@ cm3
 # ggplotly()
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 cm1 <- cm1 + theme(legend.position = "none")
 ggplotly(cm1, width=800, height=600) |>
   config(displayModeBar = FALSE)
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 cm2 <- cm2 + theme(legend.position = "none")
 ggplotly(cm2, width=800, height=600) |>
   config(displayModeBar = FALSE)
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 cm3 <- cm3 + theme(legend.position = "none")
 ggplotly(cm3, width=800, height=600) |>

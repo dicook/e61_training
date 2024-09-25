@@ -1,8 +1,8 @@
-## ----include = FALSE----------------------------------
+## ----include = FALSE------------------------------------------
 source("setup.R")
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| eval: false
 ## # divergingx_hcl(palette="Zissou 1", n=10)
@@ -11,7 +11,7 @@ source("setup.R")
 ## # specplot(divergingx_hcl(palette="Zissou 1", n=10))
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 plan <- tribble(~time, ~topic,
 "15",	"Initial data analysis",
@@ -22,7 +22,7 @@ plan <- tribble(~time, ~topic,
 knitr::kable(plan)
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 wdi <- read_xlsx(here::here("data/P_Data_Extract_From_World_Development_Indicators.xlsx"), n_max = 4788)
 wdi_tidy <- wdi |>
@@ -39,7 +39,7 @@ wdi_tidy |> glimpse()
 
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| fig-width: 7
 #| fig-height: 8
@@ -50,7 +50,7 @@ wdi_tidy |>
   vis_miss(sort_miss = TRUE)
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| fig-width: 5
 #| fig-height: 5
@@ -61,7 +61,7 @@ wdi_tidy |>
   gg_miss_var(show_pct=TRUE) + xlab("")
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| fig-width: 5
 #| fig-height: 7
@@ -79,7 +79,7 @@ wdi_tidy |>
   gg_miss_var(show_pct=TRUE) + xlab("") 
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| fig-width: 5
 #| fig-height: 5
@@ -90,7 +90,7 @@ wdi_tidy |>
   gg_miss_var(show_pct=TRUE) + xlab("")
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| fig-width: 7
 #| fig-height: 8
@@ -101,21 +101,21 @@ wdi |>
   vis_miss(sort_miss = TRUE)
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 load("data/student_data_2018.rda")
 options(width=50)
 glimpse(student_data_2018)
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| code-fold: true
 #| code-summary: "some things"
 # Math gap
 # More books higher score
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| fig-height: 16
 #| fig-width: 8
@@ -125,8 +125,6 @@ load("data/student2018_stats.rda")
 student2018_stats <- student2018_stats |>
   filter(!is.na(wreadgap))
 ggplot() +
-  #geom_linerange(data=math_results_tb,
-  #  aes(x=country, ymin=l, ymax=u)) +
   geom_hline(yintercept = 0, 
     colour="grey80", linewidth=2) +
   geom_point(data=student2018_stats, 
@@ -136,15 +134,13 @@ ggplot() +
   theme(aspect.ratio = 2)
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| fig-height: 16
 #| fig-width: 8
 #| out-width: 80%
 load("data/read_results_tb.rda")
 ggplot() +
-  #geom_linerange(data=math_results_tb,
-  #  aes(x=country, ymin=l, ymax=u)) +
   geom_hline(yintercept = 0, 
     colour="grey80", linewidth=2) +
   geom_point(data=student2018_stats, 
@@ -154,7 +150,7 @@ ggplot() +
   theme(aspect.ratio = 2)
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| fig-height: 8
 #| fig-width: 16
@@ -170,7 +166,7 @@ student_data_2018 |>
     facet_wrap(~country, ncol=16)
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| label: wages-trend1
 #| echo: false
 #| fig-width: 6
@@ -185,7 +181,7 @@ wages |>
   theme(aspect.ratio = 0.6)
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| label: wages-trend2
 #| echo: false
 #| fig-width: 8
@@ -202,7 +198,7 @@ wages |>
   theme(aspect.ratio = 0.6)
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| label: sample-n1
 #| echo: false
 #| fig-width: 6
@@ -221,7 +217,7 @@ wages |>
   theme(aspect.ratio = 0.6, legend.position = "none")
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| label: sample-n2
 #| echo: false
 #| fig-width: 6
@@ -240,7 +236,7 @@ wages |>
   theme(aspect.ratio = 0.6, legend.position = "none")
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| label: sample-n3
 #| echo: false
 #| fig-width: 6
@@ -259,7 +255,7 @@ wages |>
   theme(aspect.ratio = 0.6, legend.position = "none")
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| label: increasing
 #| echo: false
 #| fig-width: 6
@@ -287,7 +283,7 @@ wages_slope |>
   theme(aspect.ratio = 0.6, legend.position = "none")
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| label: decreasing
 #| echo: false
 #| fig-width: 6
@@ -306,7 +302,7 @@ wages_slope |>
   theme(aspect.ratio = 0.6, legend.position = "none")
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| label: small-sigma
 #| echo: false
 #| fig-width: 6
@@ -325,7 +321,7 @@ wages_spread |>
   theme(aspect.ratio = 0.6, legend.position = "none")
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| label: large-sigma
 #| echo: false
 #| fig-width: 6
@@ -344,7 +340,7 @@ wages_spread |>
   theme(aspect.ratio = 0.6, legend.position = "none")
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| label: tsibbletalk1
 #| echo: false
 #| fig-height: 5
@@ -384,14 +380,14 @@ subplot(
   
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| code-fold: true
 #| code-summary: "null sample method"
 # Simulated data from a polynomial shape 
 # which tries to model three-point success
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| out-width: 80%
 #| fig-width: 7
@@ -425,14 +421,14 @@ ggplot(lineup(null_lm(r ~ poly(angle, 2)),
 
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| code-fold: true
 #| code-summary: "null sample method"
 # Permute the class variable 
 # which breaks association
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| out-width: 80%
 #| fig-width: 7
@@ -450,14 +446,14 @@ ggplot(data=lineup(method=null_permute("mpg"),
         axis.title = element_blank())
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| code-fold: true
 #| code-summary: "null sample method"
 # Permute the group variable 
 # which breaks association
 
 
-## -----------------------------------------------------
+## -------------------------------------------------------------
 #| echo: false
 #| out-width: 80%
 #| fig-width: 7

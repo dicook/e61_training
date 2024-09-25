@@ -301,8 +301,6 @@ load("data/student2018_stats.rda")
 student2018_stats <- student2018_stats |>
   filter(!is.na(wreadgap))
 ggplot() +
-  #geom_linerange(data=math_results_tb,
-  #  aes(x=country, ymin=l, ymax=u)) +
   geom_hline(yintercept = 0, 
     colour="grey80", linewidth=2) +
   geom_point(data=student2018_stats, 
@@ -334,8 +332,6 @@ On the other hand, the reading gap is universal. Girls universally score higher 
 #| out-width: 80%
 load("data/read_results_tb.rda")
 ggplot() +
-  #geom_linerange(data=math_results_tb,
-  #  aes(x=country, ymin=l, ymax=u)) +
   geom_hline(yintercept = 0, 
     colour="grey80", linewidth=2) +
   geom_point(data=student2018_stats, 

@@ -693,9 +693,6 @@ covid_hexmap <- create_hexmap(
   shp = covid_tot,
   sf_id = "NAME",
   focal_points = capital_cities, verbose = TRUE)
-# This shows the centroids of the hexagons
-#ggplot(covid_hexmap, aes(x=hex_long, y=hex_lat)) +
-#  geom_point()
 
 # Hexagons are made with the `fortify_hexagon` function
 covid_hexmap_poly <- covid_hexmap |>
